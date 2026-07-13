@@ -105,6 +105,25 @@ type StoryAreaType struct {
 	StoryAreaTypeUniqueGift        *StoryAreaTypeUniqueGift
 }
 
+// MarshalJSON flattens the tagged union to the single populated variant so
+// outbound areas serialize as e.g. {"type":"link","url":...} — value receiver
+// so it fires on the StoryArea.Type value field.
+func (s StoryAreaType) MarshalJSON() ([]byte, error) {
+	switch {
+	case s.StoryAreaTypeLocation != nil:
+		return json.Marshal(s.StoryAreaTypeLocation)
+	case s.StoryAreaTypeSuggestedReaction != nil:
+		return json.Marshal(s.StoryAreaTypeSuggestedReaction)
+	case s.StoryAreaTypeLink != nil:
+		return json.Marshal(s.StoryAreaTypeLink)
+	case s.StoryAreaTypeWeather != nil:
+		return json.Marshal(s.StoryAreaTypeWeather)
+	case s.StoryAreaTypeUniqueGift != nil:
+		return json.Marshal(s.StoryAreaTypeUniqueGift)
+	}
+	return nil, fmt.Errorf("StoryAreaType: no variant set")
+}
+
 func (s *StoryAreaType) UnmarshalJSON(data []byte) error {
 	v := struct {
 		Type StoryAreaTypeType `json:"type"`
